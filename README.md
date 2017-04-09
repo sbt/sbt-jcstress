@@ -16,15 +16,29 @@ The purpose of this plugin is to make it trivial to use jcstress with sbt.
 
 Get the latest via:
 
- ```
- // project/plugins.sbt
- addSbtPlugin("pl.project13.sbt" % "sbt-jcstress" % pluginVersionHere)
- ```
+```
+// project/plugins.sbt
+addSbtPlugin("pl.project13.sbt" % "sbt-jcstress" % pluginVersionHere)
+```
+
+and enable it:
+
+```
+// build.sbt
+enablePlugins(JCStressPlugin)
+```
+
+To run all tests you can simply invoke:
  
- 
- ```
+```
  > jcstress:run
 ```
+
+Results are thena available in `results/index.html` and respective pages for each test.
+Here's an example of how a failed spec would look like (modified example to make it fail):
+
+![failure summary table](example-output.png)
+
 
 Contribute!
 -----------
