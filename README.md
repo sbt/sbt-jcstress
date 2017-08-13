@@ -10,6 +10,8 @@ jcstress is part of OpenJDK: https://wiki.openjdk.java.net/display/CodeTools/jcs
 **Sidenote:** jcstress is a *very* specialized tool, and unlike jmh (and sbt-jmh), 
 it is rather unlikely you actually need it - unless you're implementing low level concurrency primitives.
 
+The plugin is available for sbt 1.0.0.
+
 -----
 
 The purpose of this plugin is to make it trivial to use jcstress with sbt.

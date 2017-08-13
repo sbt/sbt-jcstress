@@ -4,7 +4,6 @@ import java.io.{File, IOException}
 
 import sbinary.DefaultProtocol.StringFormat
 import sbt.Attributed.data
-import sbt.Cache.seqFormat
 import sbt.Def.Initialize
 import sbt.KeyRanks._
 import sbt.complete.{DefaultParsers, Parser}
@@ -24,18 +23,24 @@ object JCStressPlugin extends sbt.AutoPlugin {
   override def trigger = allRequirements
 
   override def projectSettings = Seq(
-    version in jcstress := "0.3",
+    version in Jcstress := "0.3",
     
-    libraryDependencies += "org.openjdk.jcstress" % "jcstress-core" % (version in jcstress).value % "test",
+    libraryDependencies += "org.openjdk.jcstress" % "jcstress-core" % (version in Jcstress).value % "test",
     libraryDependencies += "net.sf.jopt-simple"   % "jopt-simple"   % "4.6"   % "test",
 
-    run in jcstress :=
+    run in Jcstress :=
       Def.inputTask {
         import scala.sys.process._
-
         val log = streams.value.log
-        val ivy = ivySbt.value
-        val jcstressVersion = (version in jcstress).value
+
+        val lm = {
+          import sbt.librarymanagement.ivy._
+          val ivyConfig = InlineIvyConfiguration().withLog(log)
+          IvyDependencyResolution(ivyConfig)
+        }
+    
+        // val ivy = ivySbt.value
+        val jcstressVersion = (version in Jcstress).value
         val classpath = (fullClasspath in Test).value
         val args = Nil
         val prods = (products in Compile).value
@@ -50,8 +55,8 @@ object JCStressPlugin extends sbt.AutoPlugin {
         val cpFiles = classpath.map(_.data)
 
         val jcstressDeps =
-          getArtifact("org.openjdk.jcstress" % "jcstress-core" % jcstressVersion, ivy, log) ::
-            getArtifact("net.sf.jopt-simple" % "jopt-simple" % "4.6", ivy, log) ::
+          getArtifact("org.openjdk.jcstress" % "jcstress-core" % jcstressVersion, lm, log) ::
+            getArtifact("net.sf.jopt-simple" % "jopt-simple" % "4.6", lm, log) ::
             Nil
 
         val javaClasspath = jcstressDeps.mkString(":") + ":" + cpFiles.toList.mkString(":")
@@ -99,33 +104,17 @@ object JCStressPlugin extends sbt.AutoPlugin {
    * From typesafehub/migration-manager (apache v2 licensed).
    * Resolves an artifact representing the previous abstract binary interface for testing.
    */
-  def getArtifact(m: ModuleID, ivy: IvySbt, log: Logger): File = {
-    val moduleSettings = InlineConfiguration(
-      "dummy" % "test" % "version",
-      ModuleInfo("dummy-test-project-for-resolving"),
-      dependencies = Seq(m))
-    val module = new ivy.Module(moduleSettings)
-    val report = IvyActions.update(
-      module,
-      new UpdateConfiguration(
-        retrieve = None,
-        missingOk = false,
-        logging = UpdateLogging.DownloadOnly),
-      log)
-    val optFile = (for {
-      config <- report.configurations
-      module <- config.modules
-      (artifact, file) <- module.artifacts
-      if artifact.name == m.name
-    } yield file).headOption
-    optFile getOrElse sys.error("Could not resolve jcstress artifact: " + m)
+  def getArtifact(module: ModuleID, lm:  sbt.librarymanagement.DependencyResolution, log: Logger): File = {
+    val Right(files) = lm.retrieve(module, scalaModuleInfo = None, new File("target"), log)
+    
+    files.headOption getOrElse sys.error("Could not resolve jcstress artifact: " + module)
   }
   
   private def cpOption(cpFiles: Seq[File]): String = 
     "-cp " + cpFiles.mkString(":")  
   
-  private def discoverAllClasses(analysis: inc.Analysis): Seq[String] =
-    Discovery.applications(Tests.allDefs(analysis)).collect({ case (definition, discovered) => definition.name })
+//  private def discoverAllClasses(analysis: inc.Analysis): Seq[String] =
+//    Discovery.applications(Tests.allDefs(analysis)).collect({ case (definition, discovered) => definition.name })
 
   private def runjcstressParser: (State, Seq[String]) => Parser[(String, Seq[String])] = {
     import DefaultParsers._
@@ -134,7 +123,7 @@ object JCStressPlugin extends sbt.AutoPlugin {
 
 
   object autoImport {
-    final val jcstress = sbt.config("jcstress") extend sbt.Configurations.TestInternal  
+    final val Jcstress = sbt.config("jcstress") extend sbt.Configurations.TestInternal  
   }
 
 }

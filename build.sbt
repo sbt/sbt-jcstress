@@ -1,32 +1,19 @@
-import bintray.Keys._
-
 sbtPlugin := true
 
-organization := "pl.project13.sbt"
+organization := "pl.project13.scala"
 name := "sbt-jcstress"
 
-scalaVersion := "2.10.6"
-scalacOptions ++= List(
-  "-unchecked",
-  "-deprecation",
-  "-language:_",
-  "-target:jvm-1.6",
-  "-encoding", "UTF-8"
-)
+scalaVersion := "2.12.3"
 
 libraryDependencies += Dependencies.jcstress
 
-publishTo := {
-  if (isSnapshot.value) Some(Classpaths.sbtPluginSnapshots) else Some(Classpaths.sbtPluginReleases)
-}
+publishTo := Some(Classpaths.sbtPluginReleases)
 
 // publishing settings
 
 publishMavenStyle := false
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html"))
-bintrayPublishSettings
-repository in bintray := "sbt-plugins"
-bintrayOrganization in bintray := None
+bintrayRepository := "sbt-plugins"
+bintrayOrganization := None
 
-scriptedSettings
 scriptedLaunchOpts += s"-Dproject.version=${version.value}"
