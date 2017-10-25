@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Version {
-  val jcstress = "0.3"
+  val jcstress = "0.4"
 }
 
 object Dependencies {
