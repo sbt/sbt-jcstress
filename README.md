@@ -20,7 +20,7 @@ Get the latest via:
 
 ```
 // project/plugins.sbt
-addSbtPlugin("pl.project13.sbt" % "sbt-jcstress" % pluginVersionHere)
+addSbtPlugin("pl.project13.scala" % "sbt-jcstress" % pluginVersionHere)
 ```
 
 and enable it:
