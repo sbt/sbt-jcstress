@@ -24,7 +24,8 @@ object JCStressPlugin extends sbt.AutoPlugin {
 
   override def projectSettings = Seq(
     version in Jcstress := "0.3",
-    
+    resultFolder := baseDirectory.value / "results",
+
     libraryDependencies += "org.openjdk.jcstress" % "jcstress-core" % (version in Jcstress).value % "test",
     libraryDependencies += "net.sf.jopt-simple"   % "jopt-simple"   % "4.6"   % "test",
 
@@ -87,12 +88,12 @@ object JCStressPlugin extends sbt.AutoPlugin {
         }
         
         log.info("Running tests...")
+        val resultDir = resultFolder.value.getAbsolutePath
         try {
-          val x = s"java -cp $javaClasspath org.openjdk.jcstress.Main ".!!(logIt)
+          val x = s"java -cp $javaClasspath org.openjdk.jcstress.Main -r $resultDir".!!(logIt)
           log.info(x)
         } finally {
-          val resultsIndex = baseDirectory.value / "results" / "index.html"
-          log.info(s"See results: $resultsIndex")
+          log.info(s"See results: $resultDir/index.html")
         }
       }
         .dependsOn(compile in Compile)
@@ -123,7 +124,8 @@ object JCStressPlugin extends sbt.AutoPlugin {
 
 
   object autoImport {
-    final val Jcstress = sbt.config("jcstress") extend sbt.Configurations.TestInternal  
+    final val Jcstress = sbt.config("jcstress") extend sbt.Configurations.TestInternal
+    val resultFolder = settingKey[File]("sbt-jcstress result folder")
   }
 
 }
