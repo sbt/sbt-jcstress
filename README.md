@@ -36,7 +36,7 @@ To run all tests you can simply invoke:
  > jcstress:run
 ```
 
-Results are thena available in `results/index.html` and respective pages for each test.
+Results are then available in `results/index.html` and respective pages for each test.
 [Here's an example](http://htmlpreview.github.io/?https://github.com/ktoso/sbt-jcstress/blob/master/example-output/index.html) of how a failed spec would look like (modified example to make it fail):
 
 ![failure summary table](example-output.png)
